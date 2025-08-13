@@ -4,6 +4,7 @@ import { AdsPermissionService } from './ads-permission.service';
 
 @Module({
   controllers: [AdsPermissionController],
-  providers: [AdsPermissionService]
+  providers: [AdsPermissionService],
+  exports: [AdsPermissionService],
 })
 export class AdsPermissionModule {}

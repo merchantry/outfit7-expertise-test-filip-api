@@ -7,6 +7,7 @@ import {
   Delete,
   Controller,
   ParseUUIDPipe,
+  Query,
 } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
@@ -20,8 +21,9 @@ export class EventsController {
   create(
     @Param('projectId', new ParseUUIDPipe()) projectId: string,
     @Body() dto: CreateEventDto,
+    @Query('countryCode') countryCode?: string,
   ) {
-    return this.eventsService.create(projectId, dto);
+    return this.eventsService.create(projectId, dto, countryCode);
   }
 
   @Get()
@@ -42,8 +44,9 @@ export class EventsController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Param('projectId', new ParseUUIDPipe()) projectId: string,
     @Body() dto: UpdateEventDto,
+    @Query('countryCode') countryCode?: string,
   ) {
-    return this.eventsService.update(id, projectId, dto);
+    return this.eventsService.update(id, projectId, dto, countryCode);
   }
 
   @Delete(':id')

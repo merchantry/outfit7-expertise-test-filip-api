@@ -1,15 +1,34 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateEventDto } from './dto/create-event.dto';
+import { CreateEventDto, EventType } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { Prisma } from '@prisma/client';
 import { isPrismaError } from 'src/utils/error';
+import { AdsPermissionService } from '../ads-permission/ads-permission.service';
 
 @Injectable()
 export class EventsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private adsPermissionService: AdsPermissionService,
+  ) {}
 
-  async create(projectId: string, dto: CreateEventDto) {
+  async create(projectId: string, dto: CreateEventDto, countryCode?: string) {
+    if (dto.type === EventType.ads) {
+      if (!countryCode) {
+        throw new UnauthorizedException(
+          'countryCode is required for ads events',
+        );
+      }
+      const hasPermission =
+        await this.adsPermissionService.getAdsPermissions(countryCode);
+      if (!hasPermission) {
+        throw new UnauthorizedException(
+          'User does not have ads permission for this country',
+        );
+      }
+    }
     try {
       return await this.prisma.event.create({
         data: {
@@ -41,7 +60,32 @@ export class EventsService {
     return event;
   }
 
-  async update(id: string, projectId: string, dto: UpdateEventDto) {
+  async update(
+    id: string,
+    projectId: string,
+    dto: UpdateEventDto,
+    countryCode?: string,
+  ) {
+    const currentEvent = await this.prisma.event.findUnique({
+      where: { id, projectId },
+    });
+    if (!currentEvent) throw new NotFoundException('Event not found');
+
+    if (currentEvent.type === EventType.ads || dto.type === EventType.ads) {
+      if (!countryCode) {
+        throw new UnauthorizedException(
+          'countryCode is required for ads events',
+        );
+      }
+      const hasPermission =
+        await this.adsPermissionService.getAdsPermissions(countryCode);
+      if (!hasPermission) {
+        throw new UnauthorizedException(
+          'User does not have ads permission for this country',
+        );
+      }
+    }
+
     try {
       return await this.prisma.event.update({
         where: { id, projectId },
