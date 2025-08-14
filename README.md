@@ -28,33 +28,15 @@
 ## Project setup
 
 ```bash
-$ npm install
+git clone https://github.com/merchantry/outfit7-expertise-test-filip-api.git
+cd outfit7-expertise-test-filip-api
+npm install
+npm run start:dev
 ```
-
-## Compile and run the project
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Run tests
 
 ```bash
 # unit tests
 $ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
 ```
 
 ## Deployment
