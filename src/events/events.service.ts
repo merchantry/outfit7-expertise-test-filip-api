@@ -22,7 +22,7 @@ export class EventsService {
         );
       }
       const hasPermission =
-        await this.adsPermissionService.getAdsPermissions(countryCode);
+        await this.adsPermissionService.getAdsPermission(countryCode);
       if (!hasPermission) {
         throw new UnauthorizedException(
           'User does not have ads permission for this country',
@@ -78,7 +78,7 @@ export class EventsService {
         );
       }
       const hasPermission =
-        await this.adsPermissionService.getAdsPermissions(countryCode);
+        await this.adsPermissionService.getAdsPermission(countryCode);
       if (!hasPermission) {
         throw new UnauthorizedException(
           'User does not have ads permission for this country',

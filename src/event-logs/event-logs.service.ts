@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { CreateEventLogDto } from './dto/create-event-log.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { isPrismaError } from 'src/utils/error';
 
 @Injectable()
 export class EventLogsService {
@@ -17,26 +18,18 @@ export class EventLogsService {
       );
     }
 
-    // Check all eventIds exist
-    const eventIds = Array.from(new Set(logs.map((log) => log.eventId)));
-    const foundEvents = await this.prisma.event.findMany({
-      where: { id: { in: eventIds } },
-      select: { id: true },
-    });
-    const foundIds = new Set(foundEvents.map((e) => e.id));
-    const missingIds = eventIds.filter((id) => !foundIds.has(id));
-    if (missingIds.length > 0) {
-      throw new NotFoundException(
-        `Event(s) not found: ${missingIds.join(', ')}`,
-      );
+    try {
+      const created = await this.prisma.eventLog.createMany({
+        data: logs,
+        skipDuplicates: false,
+      });
+      return { count: created.count };
+    } catch (e) {
+      if (!isPrismaError(e)) throw e;
+      if (e.code === 'P2003') {
+        throw new BadRequestException('Event id does not exist');
+      }
     }
-
-    // Create logs in batch
-    const created = await this.prisma.eventLog.createMany({
-      data: logs,
-      skipDuplicates: false,
-    });
-    return { count: created.count };
   }
 
   async findAll(params: {

@@ -7,6 +7,6 @@ export class AdsPermissionController {
 
   @Get(':countryCode')
   async getAdsPermission(@Param('countryCode') countryCode: string) {
-    return this.adsPermissionService.getAdsPermissions(countryCode);
+    return this.adsPermissionService.getAdsPermission(countryCode);
   }
 }
