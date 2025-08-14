@@ -11,6 +11,11 @@ import { isPrismaError } from 'src/utils/error';
 export class EventLogsService {
   constructor(private prisma: PrismaService) {}
 
+  /**
+   * Creates event logs in batch.
+   * Throws BadRequestException if logs array is empty or eventId does not exist.
+   * @param logs Array of event log DTOs
+   */
   async createBatch(logs: CreateEventLogDto[]) {
     if (!Array.isArray(logs) || logs.length === 0) {
       throw new BadRequestException(
@@ -32,6 +37,10 @@ export class EventLogsService {
     }
   }
 
+  /**
+   * Finds event logs with optional filtering, pagination, and sorting.
+   * @param params Query parameters: offset, limit, sortBy, sortOrder, eventId
+   */
   async findAll(params: {
     offset?: number;
     limit?: number;
@@ -68,6 +77,11 @@ export class EventLogsService {
     };
   }
 
+  /**
+   * Finds a single event log by ID.
+   * Throws NotFoundException if not found.
+   * @param id EventLog ID
+   */
   async findOne(id: string) {
     const log = await this.prisma.eventLog.findUnique({ where: { id } });
     if (!log) throw new NotFoundException('EventLog not found');
@@ -77,6 +91,11 @@ export class EventLogsService {
     };
   }
 
+  /**
+   * Deletes an event log by ID.
+   * Throws NotFoundException if not found.
+   * @param id EventLog ID
+   */
   async remove(id: string) {
     try {
       await this.prisma.eventLog.delete({ where: { id } });
